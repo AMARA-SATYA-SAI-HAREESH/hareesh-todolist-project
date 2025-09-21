@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://amara-satya-sai-hareesh.github.io/hareesh-todolist-project/sitemap.xml
