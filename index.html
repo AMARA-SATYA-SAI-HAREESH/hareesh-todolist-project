@@ -1,43 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Hareesh Todo App</title>
-    <meta name="description" content="Download Hareesh Todo App - A simple todo list for managing tasks. Free APK for Android.">
-    <meta name="keywords" content="hareesh todo app, todo list apk, download todo app">
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            text-align: center; 
-            padding: 20px; 
-            background-color: #f0f0f0; 
-        }
-        h1 { 
-            color: #007cba; 
-        }
-        .download-btn { 
-            display: inline-block;  /* Makes it button-like */
-            background: linear-gradient(to right, #007cba, #005a8e);  /* Gradient for attractiveness */
-            color: white; 
-            padding: 15px 30px; 
-            text-decoration: none; 
-            border-radius: 8px; 
-            font-size: 18px; 
-            font-weight: bold; 
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);  /* Shadow for depth */
-            transition: all 0.3s ease;  /* Smooth hover animation */
-        }
-        .download-btn:hover { 
-            background: linear-gradient(to right, #005a8e, #003f6b);  /* Darker on hover */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);  /* Bigger shadow on hover */
-            transform: translateY(-2px);  /* Slight lift effect */
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Todo List App</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: white;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 10px 10px;
+      color: #333;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 25px 30px 40px;
+      max-width: 410px;
+      width: 100%;
+      box-shadow: 0 12px 30px rgba(31, 189, 209, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      color: #486581;
+      font-weight: 700;
+      font-size: 2.5rem;
+      text-shadow: 1px 1px 4px rgba(103, 127, 145, 0.4);
+    }
+
+    #searchInput {
+      padding: 12px 15px;
+      font-size: 16px;
+      border: 2px solid #5e97d1;
+      border-radius: 8px;
+      width: 80%;
+      margin: 0 auto;
+      transition: border-color 0.3s ease;
+      outline: none;
+      display: block;
+    }
+
+    #searchInput:focus {
+      border-color: #3d6ea1;
+    }
+
+    .input-section {
+      display: flex;
+      gap: 20px;
+    }
+
+    #taskInput {
+      flex-grow: 1;
+      padding: 12px 15px;
+      font-size: 16px;
+      border-radius: 16px;
+      border: 2px solid #67b26f;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+
+    #taskInput:focus {
+      border-color: #4d904e;
+    }
+
+    #addBtn {
+      background-color: #67b26f;
+      border: none;
+      padding: 12px 24px;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    #addBtn:hover {
+      background-color: #4d904e;
+    }
+
+    #taskList {
+      max-height: 330px;
+      overflow-y: auto;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      border-top: 2px solid #67b26f;
+    }
+
+    li {
+      padding: 14px 20px;
+      border-bottom: 1px solid #ddf1e6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 18px;
+      color: #444;
+    }
+
+    .delete-btn {
+      background-color: #f05e61;
+      border: none;
+      border-radius: 14px;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 8px 16px;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .delete-btn:hover {
+      background-color: #d64446;
+    }
+  </style>
 </head>
 <body>
-    <h1>Hareesh Todo App</h1>
-    <p>A simple app to manage your daily tasks. Add, edit, and delete todos easily!</p>
-    <p>Version: 1.0 | Size: 2.7MB | Requires: Android 8.0+</p>
-    <a href="hareeshtodolist.apk" class="download-btn" download>Download APK</a>
-    <p>Scan the QR code or click to download directly.</p>
+  <div class="container">
+    <h1>My Todo List</h1>
+    <input id="searchInput" type="text" placeholder="Super Search... Type to filter tasks..." autocomplete="off" />
+    <div class="input-section">
+      <input id="taskInput" type="text" placeholder="Add a new task" autocomplete="off" />
+      <button id="addBtn">Add</button>
+    </div>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function renderTasks(filter = '') {
+      const taskList = document.getElementById('taskList');
+      taskList.innerHTML = '';
+      tasks.forEach((task, index) => {
+        if (task.toLowerCase().includes(filter.toLowerCase())) {
+          const li = document.createElement('li');
+          li.innerHTML = task + ` <button class="delete-btn" onclick="deleteTask(${index})">Delete</button>`;
+          taskList.appendChild(li);
+        }
+      });
+    }
+
+    function addTask() {
+      const taskInput = document.getElementById('taskInput');
+      let task = taskInput.value.trim();
+      if (!task) return;
+      tasks.push(task);
+      saveTasks();
+      renderTasks();
+      taskInput.value = '';
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      saveTasks();
+      renderTasks();
+    }
+
+    // Super search input
+    document.getElementById('searchInput').addEventListener('input', e => {
+      renderTasks(e.target.value);
+    });
+
+    // Add task button and enter key
+    document.getElementById('addBtn').addEventListener('click', addTask);
+    document.getElementById('taskInput').addEventListener('keypress', e => {
+      if (e.key === 'Enter') addTask();
+    });
+
+    // Initial render
+    renderTasks();
+  </script>
 </body>
 </html>
